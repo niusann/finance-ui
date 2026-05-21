@@ -3,6 +3,8 @@ import {
   EmptyState, Skeleton, Toast, Stepper,
   Button, Card,
 } from "../../../src/lib";
+import { ApiTable } from "../ApiTable";
+import { CodeBlock } from "../CodeBlock";
 
 function Section({ title, desc, children }: { title: string; desc?: string; children: React.ReactNode }) {
   return (
@@ -40,6 +42,21 @@ export default function Feedback() {
           />
         </div>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "title", type: "ReactNode", required: true, description: "Main heading for the empty state." },
+        { name: "icon", type: "ReactNode", default: '"✦"', description: "Icon or emoji shown above the title." },
+        { name: "body", type: "ReactNode", description: "Supporting description text." },
+        { name: "action", type: "ReactNode", description: "CTA button or link element." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<EmptyState
+  icon="📊"
+  title="No transactions yet"
+  body="Connect an account to start tracking your spending."
+  action={<Button>Connect account</Button>}
+/>`} />
 
       <Section title="Skeleton" desc="Loading placeholder shapes for content that is still fetching.">
         <Card>
@@ -65,6 +82,21 @@ export default function Feedback() {
           </div>
         </Card>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "variant", type: '"line" | "line-lg" | "circle"', default: '"line"', description: "Shape of the skeleton placeholder." },
+        { name: "width", type: "string | number", description: "CSS width (e.g. '60%', 120). Overrides the default variant width." },
+        { name: "height", type: "string | number", description: "CSS height override." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`{isLoading ? (
+  <>
+    <Skeleton variant="circle" />
+    <Skeleton variant="line-lg" width="60%" />
+    <Skeleton variant="line" width="40%" />
+  </>
+) : <UserProfile user={user} />}`} />
 
       <Section title="Toast" desc="Inline notification banner with close button. Two variants: default and warning.">
         <div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
@@ -96,6 +128,21 @@ export default function Feedback() {
           </div>
         </div>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "children", type: "ReactNode", required: true, description: "Toast message content." },
+        { name: "type", type: '"success" | "warning"', default: '"success"', description: "Visual style: success shows a checkmark, warning shows an exclamation." },
+        { name: "onClose", type: "() => void", description: "When provided, renders a close (×) button." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<Toast onClose={() => setVisible(false)}>
+  Account connected successfully.
+</Toast>
+
+<Toast type="warning" onClose={() => setVisible(false)}>
+  Sync paused — reconnect required.
+</Toast>`} />
 
       <Section title="Stepper" desc="Horizontal step progress indicator for multi-step flows.">
         <div style={{ display: "flex", flexDirection: "column", gap: 24 }}>
@@ -122,6 +169,17 @@ export default function Feedback() {
           </div>
         </div>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "steps", type: "ReactNode[]", required: true, description: "Array of step labels." },
+        { name: "current", type: "number", required: true, description: "0-indexed current step. Steps before current are marked done." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<Stepper
+  steps={["Connect accounts", "Pick goals", "Set budget", "Review"]}
+  current={step}
+/>`} />
     </div>
   );
 }

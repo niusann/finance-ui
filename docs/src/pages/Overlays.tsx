@@ -3,6 +3,8 @@ import {
   Modal, BottomSheet,
   Button, Field, TextInput, CurrencyInput,
 } from "../../../src/lib";
+import { ApiTable } from "../ApiTable";
+import { CodeBlock } from "../CodeBlock";
 
 function Section({ title, desc, children }: { title: string; desc?: string; children: React.ReactNode }) {
   return (
@@ -74,6 +76,30 @@ export default function Overlays() {
           </p>
         </Modal>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "open", type: "boolean", required: true, description: "Controls whether the modal is visible." },
+        { name: "children", type: "ReactNode", required: true, description: "Modal body content." },
+        { name: "title", type: "ReactNode", description: "Title shown in the modal header." },
+        { name: "onClose", type: "() => void", description: "Called when the backdrop or close button is clicked." },
+        { name: "footer", type: "ReactNode", description: "Content rendered in the modal footer (typically action buttons)." },
+        { name: "portal", type: "boolean", default: "true", description: "When true, renders via createPortal into document.body. Set false for design previews." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<Modal
+  open={isOpen}
+  title="Confirm transfer"
+  onClose={() => setOpen(false)}
+  footer={
+    <>
+      <Button variant="tertiary" onClick={() => setOpen(false)}>Cancel</Button>
+      <Button variant="data" onClick={handleConfirm}>Confirm</Button>
+    </>
+  }
+>
+  Transfer $2,500 to Chase Savings?
+</Modal>`} />
 
       <Section title="BottomSheet" desc="Sheet that slides up from the bottom — ideal for mobile actions.">
         <div className="docs-row">
@@ -105,6 +131,21 @@ export default function Overlays() {
           </div>
         </BottomSheet>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "open", type: "boolean", required: true, description: "Controls whether the sheet is visible." },
+        { name: "children", type: "ReactNode", required: true, description: "Sheet body content." },
+        { name: "onClose", type: "() => void", description: "Called when the scrim backdrop is clicked." },
+        { name: "portal", type: "boolean", default: "true", description: "When true, renders via createPortal into document.body." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<BottomSheet open={sheetOpen} onClose={() => setSheetOpen(false)}>
+  <h3>Add to budget</h3>
+  <Field label="Category"><TextInput defaultValue="Dining" /></Field>
+  <Field label="Limit"><CurrencyInput defaultValue="600" suffix="/mo" /></Field>
+  <Button block onClick={() => setSheetOpen(false)}>Save</Button>
+</BottomSheet>`} />
     </div>
   );
 }

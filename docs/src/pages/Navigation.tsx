@@ -4,6 +4,8 @@ import {
   IconButton, Avatar,
   colors,
 } from "../../../src/lib";
+import { ApiTable } from "../ApiTable";
+import { CodeBlock } from "../CodeBlock";
 
 function Section({ title, desc, children }: { title: string; desc?: string; children: React.ReactNode }) {
   return (
@@ -47,6 +49,23 @@ export default function Navigation() {
           />
         </div>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "brand", type: "ReactNode", required: true, description: "Brand logo or name shown at the left." },
+        { name: "items", type: "AppBarItem[]", required: true, description: "Navigation links. Each has: label (ReactNode), optional href, active (boolean), onClick." },
+        { name: "end", type: "ReactNode", description: "Right-side slot for search, avatar, notifications, etc." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<AppBar
+  brand="◐ MyApp"
+  items={[
+    { label: "Overview",  href: "/",      active: true },
+    { label: "Portfolio", href: "/portfolio" },
+    { label: "Goals",     href: "/goals" },
+  ]}
+  end={<Avatar initials="YL" />}
+/>`} />
 
       <Section title="SideNav" desc="Vertical navigation sidebar with icon + label rows.">
         <div style={{ display: "flex", gap: 24, alignItems: "flex-start" }}>
@@ -81,6 +100,20 @@ export default function Navigation() {
           </div>
         </div>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "items", type: "SideNavItem[]", required: true, description: "Navigation items. Each has: label (ReactNode), optional icon (ReactNode), href, active (boolean), onClick." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<SideNav
+  items={[
+    { label: "Overview",     icon: "◐", href: "/",           active: true },
+    { label: "Transactions", icon: "↔", href: "/transactions" },
+    { label: "Investments",  icon: "◓", href: "/investments" },
+    { label: "Settings",     icon: "⚙", href: "/settings" },
+  ]}
+/>`} />
 
       <Section title="TabBar" desc="Mobile bottom navigation with icon + label tabs.">
         <div style={{ maxWidth: 400, margin: "0 auto" }}>
@@ -109,6 +142,20 @@ export default function Navigation() {
           </p>
         </div>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "items", type: "TabBarItem[]", required: true, description: "Tab items. Each has: icon (ReactNode), label (ReactNode), optional active (boolean), href, onClick." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<TabBar
+  items={[
+    { icon: "⌂", label: "Home",     active: tab === "Home",     onClick: () => setTab("Home") },
+    { icon: "↔", label: "Activity", active: tab === "Activity", onClick: () => setTab("Activity") },
+    { icon: "◐", label: "Insights", active: tab === "Insights", onClick: () => setTab("Insights") },
+    { icon: "◔", label: "Goals",    active: tab === "Goals",    onClick: () => setTab("Goals") },
+  ]}
+/>`} />
     </div>
   );
 }

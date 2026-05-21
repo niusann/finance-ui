@@ -6,6 +6,8 @@ import {
   colors,
   type WaterfallStep,
 } from "../../../src/lib";
+import { ApiTable } from "../ApiTable";
+import { CodeBlock } from "../CodeBlock";
 
 function Section({ title, desc, children }: { title: string; desc?: string; children: React.ReactNode }) {
   return (
@@ -106,6 +108,16 @@ export default function Charts() {
           </div>
         </div>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "values", type: "number[]", required: true, description: "Array of data points to plot. Requires at least 2 values." },
+        { name: "width", type: "number", default: "120", description: "SVG width in pixels." },
+        { name: "height", type: "number", default: "32", description: "SVG height in pixels." },
+        { name: "direction", type: '"up" | "down" | "flat" | "auto"', default: '"auto"', description: "Color direction. auto detects from first vs last value." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<Sparkline values={[10, 12, 11, 14, 16, 18, 20]} width={120} height={32} />`} />
 
       <Section title="DonutChart" desc="Animated donut chart with legend.">
         <Card>
@@ -121,6 +133,24 @@ export default function Charts() {
           />
         </Card>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "segments", type: "DonutSegment[]", required: true, description: "Array of segments. Each has: label (ReactNode), value (number), optional color (string), optional amount (ReactNode for legend)." },
+        { name: "size", type: "number", default: "200", description: "SVG diameter in pixels." },
+        { name: "stroke", type: "number", default: "24", description: "Ring stroke width in pixels." },
+        { name: "showLegend", type: "boolean", default: "true", description: "Whether to render the legend alongside the chart." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<DonutChart
+  segments={[
+    { label: "Stocks", value: 48512, amount: "$48,512" },
+    { label: "ETFs",   value: 19134, amount: "$19,134" },
+    { label: "Bonds",  value: 18354, amount: "$18,354" },
+  ]}
+  size={200}
+  showLegend
+/>`} />
 
       <Section title="AreaChart" desc="SVG area chart with gradient fill and axis labels.">
         <Card>
@@ -128,6 +158,23 @@ export default function Charts() {
           <AreaChart data={areaData} />
         </Card>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "data", type: "AreaPoint[]", required: true, description: "Array of { label: string; value: number } data points." },
+        { name: "height", type: "number", default: "240", description: "SVG height in pixels." },
+        { name: "width", type: "number", default: "800", description: "SVG viewBox width (scales to container)." },
+        { name: "yAxisFormat", type: "(v: number) => string", default: 'v => `$${Math.round(v/1000)}K`', description: "Formatter for Y-axis labels." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<AreaChart
+  data={[
+    { label: "Jan", value: 74396 },
+    { label: "Feb", value: 75820 },
+    { label: "Mar", value: 73100 },
+  ]}
+  height={240}
+/>`} />
 
       <Section title="CandlestickChart" desc="OHLCV candlestick chart with volume bars.">
         <Card>
@@ -135,6 +182,15 @@ export default function Charts() {
           <CandlestickChart data={candles} />
         </Card>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "data", type: "Candle[]", required: true, description: "Array of candles. Each has: open, high, low, close (number), vol (number), optional label (string)." },
+        { name: "height", type: "number", default: "360", description: "SVG height in pixels." },
+        { name: "width", type: "number", default: "800", description: "SVG viewBox width (scales to container)." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<CandlestickChart data={candles} height={360} />`} />
 
       <Section title="BarChart" desc="Bar chart supporting positive and negative values.">
         <Card>
@@ -142,6 +198,21 @@ export default function Charts() {
           <BarChart data={monthlyReturns} />
         </Card>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "data", type: "{ label: string; value: number }[]", required: true, description: "Array of bar data points. Negative values render below the zero line." },
+        { name: "height", type: "number", default: "200", description: "SVG height in pixels." },
+        { name: "width", type: "number", default: "800", description: "SVG viewBox width (scales to container)." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<BarChart
+  data={[
+    { label: "Jan", value:  3.2 },
+    { label: "Feb", value: -1.8 },
+    { label: "Mar", value:  2.4 },
+  ]}
+/>`} />
 
       <Section title="WaterfallChart" desc="Waterfall (bridge) chart for cash-flow breakdowns.">
         <Card>
@@ -149,6 +220,22 @@ export default function Charts() {
           <WaterfallChart steps={waterfall} />
         </Card>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "steps", type: "WaterfallStep[]", required: true, description: "Array of steps. Each has label, value, and optional type ('start' | 'add' | 'sub' | 'end')." },
+        { name: "height", type: "number", default: "240", description: "SVG height in pixels." },
+        { name: "width", type: "number", default: "800", description: "SVG viewBox width (scales to container)." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<WaterfallChart
+  steps={[
+    { label: "Start",  value: 100000, type: "start" },
+    { label: "Income", value:  30000, type: "add" },
+    { label: "Tax",    value:  -8000, type: "sub" },
+    { label: "End",    value:      0, type: "end" },
+  ]}
+/>`} />
 
       <Section title="ComparisonChart" desc="Normalized multi-line comparison chart.">
         <Card>
@@ -156,6 +243,20 @@ export default function Charts() {
           <ComparisonChart series={comparisonSeries} />
         </Card>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "series", type: "ComparisonSeries[]", required: true, description: "Array of series. Each has label (string), values (number[]), and optional color (string)." },
+        { name: "height", type: "number", default: "240", description: "SVG height in pixels." },
+        { name: "width", type: "number", default: "800", description: "SVG viewBox width (scales to container)." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<ComparisonChart
+  series={[
+    { label: "AAPL", values: [100, 105, 110, 118, 128] },
+    { label: "SPY",  values: [100, 101, 103, 106, 110] },
+  ]}
+/>`} />
 
       <Section title="StackedBar" desc="Horizontal proportional stacked bar.">
         <Card>
@@ -172,6 +273,19 @@ export default function Charts() {
           />
         </Card>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "segments", type: "StackedBarSegment[]", required: true, description: "Array of segments. Each has value (number, used as flex proportion) and color (CSS string)." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<StackedBar
+  segments={[
+    { value: 42, color: "#1a1a2e" },
+    { value: 18, color: "#4a90d9" },
+    { value: 14, color: "#74b9ff" },
+  ]}
+/>`} />
 
       <Section title="Treemap" desc="CSS grid-based treemap for allocation visualization.">
         <Card>
@@ -191,6 +305,22 @@ export default function Charts() {
           />
         </Card>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "cells", type: "TreemapCell[]", required: true, description: "Array of cells. Each has label (ReactNode), color (string), area (CSS grid-area), optional meta (ReactNode) and light (boolean for dark text)." },
+        { name: "columns", type: "number", default: "8", description: "Number of grid columns." },
+        { name: "rows", type: "number", default: "5", description: "Number of grid rows." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<Treemap
+  columns={8}
+  rows={5}
+  cells={[
+    { label: "AAPL", meta: "14.2%", color: "#1a1a2e", area: "1 / 1 / 3 / 4" },
+    { label: "MSFT", meta: "11.5%", color: "#2d3a8c", area: "1 / 4 / 3 / 7" },
+  ]}
+/>`} />
 
       <Section title="SectorHeatmap" desc="Color-coded grid of market sector changes.">
         <Card>
@@ -198,6 +328,19 @@ export default function Charts() {
           <SectorHeatmap cells={sectors} />
         </Card>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "cells", type: "SectorCell[]", required: true, description: "Array of sectors. Each has label (string) and change (signed % number)." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<SectorHeatmap
+  cells={[
+    { label: "TECH",   change:  2.4 },
+    { label: "ENERGY", change: -1.1 },
+    { label: "FIN",    change:  0.4 },
+  ]}
+/>`} />
 
       <Section title="CalendarHeatmap" desc="Intensity grid for daily spending or activity.">
         <Card>
@@ -205,6 +348,17 @@ export default function Charts() {
           <CalendarHeatmap intensities={heatmapIntensities} columns={14} />
         </Card>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "intensities", type: "number[]", required: true, description: "Array of intensity values 0–5 for each cell." },
+        { name: "columns", type: "number", required: true, description: "Number of columns in the grid (e.g. 7 for days-of-week, 14 for 2-week view)." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<CalendarHeatmap
+  intensities={dailySpend.map(v => Math.min(5, Math.floor(v / 200)))}
+  columns={7}
+/>`} />
 
       <Section title="Gauge" desc="Semi-circular gauge for risk or score display.">
         <div style={{ display: "flex", gap: 48, justifyContent: "center", flexWrap: "wrap" }}>
@@ -222,6 +376,16 @@ export default function Charts() {
           </div>
         </div>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "value", type: "number", required: true, description: "Gauge fill value from 0 to 100." },
+        { name: "label", type: "ReactNode", description: "Text label shown below the numeric value." },
+        { name: "size", type: "number", default: "160", description: "Width of the gauge in pixels." },
+        { name: "color", type: "string", default: '"var(--data-700)"', description: "CSS color for the filled arc." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<Gauge value={68} label="Moderate" size={160} />`} />
     </div>
   );
 }

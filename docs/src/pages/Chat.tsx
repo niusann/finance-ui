@@ -4,6 +4,8 @@ import {
   StatusPill, Card, CardHeader, Divider, ListItem, TabToggle,
   colors,
 } from "../../../src/lib";
+import { ApiTable } from "../ApiTable";
+import { CodeBlock } from "../CodeBlock";
 
 function Section({ title, desc, children }: { title: string; desc?: string; children: React.ReactNode }) {
   return (
@@ -40,6 +42,13 @@ export default function Chat() {
           <UserBubble>Show me my investment performance YTD.</UserBubble>
         </div>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "children", type: "ReactNode", required: true, description: "Message content displayed in the bubble." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<UserBubble>How much did I spend on dining last month?</UserBubble>`} />
 
       <Section title="AIResponse" desc="Left-aligned AI response container — accepts any React children.">
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
@@ -56,6 +65,16 @@ export default function Chat() {
           </AIResponse>
         </div>
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "children", type: "ReactNode", required: true, description: "AI response content — accepts any ReactNode including cards, lists, charts, etc." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<AIResponse>
+  <StatusPill>Analyzing portfolio</StatusPill>
+  <p>Your net worth grew by 12.4% this year.</p>
+</AIResponse>`} />
 
       <Section title="AIActions" desc="Feedback and utility action bar below an AI response.">
         <AIActions
@@ -66,6 +85,23 @@ export default function Chat() {
           onShare={() => {}}
         />
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "onCopy", type: "() => void", description: "Copy response to clipboard." },
+        { name: "onSpeak", type: "() => void", description: "Read response aloud." },
+        { name: "onLike", type: "() => void", description: "Thumbs-up feedback." },
+        { name: "onDislike", type: "() => void", description: "Thumbs-down feedback." },
+        { name: "onRegenerate", type: "() => void", description: "Regenerate the AI response." },
+        { name: "onShare", type: "() => void", description: "Share the response." },
+        { name: "className", type: "string", description: "Optional additional CSS class names." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<AIActions
+  onCopy={() => copyToClipboard(responseText)}
+  onLike={() => submitFeedback('up')}
+  onDislike={() => submitFeedback('down')}
+  onRegenerate={regenerate}
+/>`} />
 
       <Section title="Composer" desc="Multi-line textarea + submit button for user input.">
         <Composer
@@ -83,6 +119,22 @@ export default function Chat() {
           </div>
         )}
       </Section>
+      <div className="docs-subsection-label">Props</div>
+      <ApiTable props={[
+        { name: "placeholder", type: "string", default: '"Ask anything…"', description: "Input placeholder text." },
+        { name: "value", type: "string", description: "Controlled input value." },
+        { name: "onValueChange", type: "(v: string) => void", description: "Callback fired on every keystroke." },
+        { name: "onAdd", type: "() => void", description: "Called when the + attachment button is clicked." },
+        { name: "onSubmit", type: "(e: FormEvent) => void", description: "Called when the form is submitted." },
+        { name: "...", type: "FormHTMLAttributes<HTMLFormElement>", description: "Also accepts all standard <form> HTML attributes." },
+      ]} />
+      <div className="docs-subsection-label">Usage</div>
+      <CodeBlock code={`<Composer
+  placeholder="Ask anything about your finances…"
+  value={input}
+  onValueChange={setInput}
+  onSubmit={e => { e.preventDefault(); sendMessage(input); setInput(""); }}
+/>`} />
 
       <Section title="Full conversation example" desc="A complete chat thread with embedded components.">
         <div style={{ maxWidth: 640, display: "flex", flexDirection: "column", gap: 24 }}>
