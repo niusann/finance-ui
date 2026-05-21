@@ -61,6 +61,7 @@ function applyTheme(theme: Theme) {
 
 export default function App() {
   const [active, setActive] = useState("primitives");
+  const [sidebarOpen, setSidebarOpen] = useState(false);
   const [theme, setTheme] = useState<Theme>(() => {
     const saved = localStorage.getItem("ui-theme") as Theme | null;
     return saved ?? "system";
@@ -84,10 +85,22 @@ export default function App() {
   const themeIcon = theme === "dark" ? "◑" : theme === "light" ? "○" : "◐";
   const themeLabel = theme === "dark" ? "Dark" : theme === "light" ? "Light" : "System";
 
+  function navigate(id: string) {
+    setActive(id);
+    setSidebarOpen(false);
+  }
+
   return (
     <div className="docs-root">
       {/* ── Top bar ── */}
       <header className="docs-topbar">
+        <button
+          className="docs-hamburger"
+          onClick={() => setSidebarOpen(o => !o)}
+          aria-label="Toggle navigation"
+        >
+          <span /><span /><span />
+        </button>
         <span className="docs-topbar-brand">◐ finance-ui</span>
         <div className="docs-topbar-spacer" />
         <button
@@ -97,19 +110,24 @@ export default function App() {
         >
           {themeIcon} {themeLabel}
         </button>
-        <a href="https://github.com/blob-get/finance-ui" target="_blank" rel="noopener noreferrer">
+        <a className="docs-github-link" href="https://github.com/blob-get/finance-ui" target="_blank" rel="noopener noreferrer">
           View on GitHub
         </a>
       </header>
 
+      {/* ── Sidebar overlay (mobile) ── */}
+      {sidebarOpen && (
+        <div className="docs-sidebar-overlay" onClick={() => setSidebarOpen(false)} />
+      )}
+
       {/* ── Sidebar ── */}
-      <nav className="docs-sidebar">
+      <nav className={`docs-sidebar${sidebarOpen ? " open" : ""}`}>
         <div className="docs-sidebar-section">Components</div>
         {CATEGORIES.map(c => (
           <a
             key={c.id}
             className={`docs-sidebar-link${active === c.id ? " active" : ""}`}
-            onClick={() => setActive(c.id)}
+            onClick={() => navigate(c.id)}
           >
             {c.label}
           </a>

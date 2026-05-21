@@ -275,6 +275,35 @@
   margin: 24px 0 8px;
 }
 
+/* ── Hamburger button ────────────────────────── */
+.docs-hamburger {
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  gap: 5px;
+  width: 36px;
+  height: 36px;
+  padding: 6px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  border-radius: 6px;
+  flex-shrink: 0;
+}
+.docs-hamburger:hover { background: var(--bg-soft); }
+.docs-hamburger span {
+  display: block;
+  height: 2px;
+  border-radius: 2px;
+  background: var(--text-primary);
+  transition: opacity 120ms;
+}
+
+/* ── Sidebar overlay (mobile) ────────────────── */
+.docs-sidebar-overlay {
+  display: none;
+}
+
 /* ── Theme toggle ────────────────────────────── */
 .docs-theme-toggle {
   display: inline-flex;
@@ -294,4 +323,107 @@
   background: var(--bg-soft);
   color: var(--text-primary);
   border-color: var(--text-muted);
+}
+
+/* ── Responsive: tablet (≤900px) ─────────────── */
+@media (max-width: 900px) {
+  .docs-content {
+    padding: 72px 28px 60px;
+  }
+  .docs-grid-4 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+  .docs-grid-3 {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+/* ── Responsive: mobile (≤640px) ─────────────── */
+@media (max-width: 640px) {
+  /* Show hamburger, hide github link */
+  .docs-hamburger {
+    display: flex;
+  }
+  .docs-github-link {
+    display: none;
+  }
+
+  /* Topbar: no sidebar offset */
+  .docs-topbar {
+    padding: 0 12px;
+    gap: 8px;
+  }
+  .docs-topbar-brand {
+    position: static;
+    height: auto;
+    font-size: 0.875rem;
+  }
+
+  /* Sidebar: hidden off-screen, slides in when .open */
+  .docs-sidebar {
+    transform: translateX(-100%);
+    transition: transform 240ms ease;
+    z-index: 200;
+    top: 0;
+    padding-top: 64px;
+    box-shadow: none;
+  }
+  .docs-sidebar.open {
+    transform: translateX(0);
+    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.15);
+  }
+
+  /* Overlay */
+  .docs-sidebar-overlay {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    z-index: 199;
+  }
+
+  /* Content: full width, comfortable padding */
+  .docs-content {
+    margin-left: 0;
+    padding: 68px 16px 48px;
+    max-width: 100%;
+  }
+
+  /* Page title */
+  .docs-page-title {
+    font-size: 1.5rem;
+  }
+
+  /* Grids collapse to single column */
+  .docs-grid-2,
+  .docs-grid-3,
+  .docs-grid-4 {
+    grid-template-columns: 1fr;
+  }
+
+  /* Demo boxes: tighter padding */
+  .docs-demo-box {
+    padding: 16px;
+  }
+
+  /* Tables: horizontal scroll */
+  .docs-api-table,
+  .docs-token-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  /* Code blocks: full bleed */
+  .docs-code-block {
+    margin-left: -16px;
+    margin-right: -16px;
+    border-radius: 0;
+    font-size: 12px;
+  }
+
+  /* Swatch grid: smaller min */
+  .docs-swatch-grid {
+    grid-template-columns: repeat(auto-fill, minmax(90px, 1fr));
+  }
 }
