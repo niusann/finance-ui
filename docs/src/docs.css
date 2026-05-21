@@ -1,0 +1,221 @@
+/* ── Docs layout ─────────────────────────────── */
+* { box-sizing: border-box; }
+
+.docs-root {
+  display: flex;
+  min-height: 100vh;
+  font-family: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #fff;
+  color: #0a0a0a;
+}
+
+/* ── Top bar ─────────────────────────────────── */
+.docs-topbar {
+  position: fixed;
+  top: 0; left: 0; right: 0;
+  height: 52px;
+  background: #fff;
+  border-bottom: 1px solid #e5e7eb;
+  display: flex;
+  align-items: center;
+  padding: 0 20px 0 260px;
+  z-index: 100;
+  gap: 16px;
+}
+.docs-topbar-brand {
+  font-size: 0.9375rem;
+  font-weight: 700;
+  color: #0a0a0a;
+  letter-spacing: -0.01em;
+  position: fixed;
+  left: 20px;
+  top: 0;
+  height: 52px;
+  display: flex;
+  align-items: center;
+}
+.docs-topbar-spacer { flex: 1; }
+.docs-topbar a {
+  font-size: 0.8125rem;
+  color: #6b7280;
+  text-decoration: none;
+}
+.docs-topbar a:hover { color: #0a0a0a; }
+
+/* ── Sidebar ─────────────────────────────────── */
+.docs-sidebar {
+  position: fixed;
+  top: 0; left: 0; bottom: 0;
+  width: 240px;
+  border-right: 1px solid #e5e7eb;
+  background: #fafafa;
+  padding: 64px 0 24px;
+  overflow-y: auto;
+}
+.docs-sidebar-section {
+  padding: 20px 16px 8px;
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: #9ca3af;
+}
+.docs-sidebar-link {
+  display: block;
+  padding: 7px 20px;
+  font-size: 0.875rem;
+  color: #374151;
+  text-decoration: none;
+  border-radius: 6px;
+  margin: 1px 8px;
+  cursor: pointer;
+  transition: background 120ms, color 120ms;
+}
+.docs-sidebar-link:hover {
+  background: #f3f4f6;
+  color: #0a0a0a;
+}
+.docs-sidebar-link.active {
+  background: #0a0a0a;
+  color: #fff;
+}
+
+/* ── Content ─────────────────────────────────── */
+.docs-content {
+  flex: 1;
+  margin-left: 240px;
+  padding: 72px 48px 80px;
+  min-width: 0;
+  max-width: 960px;
+}
+
+/* ── Page heading ────────────────────────────── */
+.docs-page-title {
+  font-size: 2rem;
+  font-weight: 800;
+  letter-spacing: -0.02em;
+  margin: 0 0 8px;
+}
+.docs-page-subtitle {
+  font-size: 1rem;
+  color: #6b7280;
+  margin: 0 0 40px;
+}
+
+/* ── Component section ───────────────────────── */
+.docs-section {
+  margin-bottom: 56px;
+}
+.docs-section-title {
+  font-size: 1rem;
+  font-weight: 700;
+  margin: 0 0 4px;
+  font-family: "SF Mono", "Fira Code", monospace;
+  color: #0a0a0a;
+}
+.docs-section-desc {
+  font-size: 0.875rem;
+  color: #6b7280;
+  margin: 0 0 16px;
+}
+.docs-demo-box {
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  padding: 24px;
+  background: #fff;
+}
+.docs-demo-box--gray {
+  background: #f9fafb;
+}
+.docs-label {
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.07em;
+  text-transform: uppercase;
+  color: #9ca3af;
+  margin-bottom: 12px;
+}
+.docs-row {
+  display: flex;
+  gap: 12px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.docs-grid-2 {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.docs-grid-3 {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+.docs-grid-4 {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+  align-items: start;
+}
+
+/* ── Token swatches ─────────────────────────── */
+.docs-swatch-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+  gap: 12px;
+}
+.docs-swatch {
+  border-radius: 8px;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+}
+.docs-swatch-color {
+  height: 48px;
+}
+.docs-swatch-info {
+  padding: 8px 10px;
+  background: #fff;
+}
+.docs-swatch-name {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+}
+.docs-swatch-value {
+  font-size: 0.6875rem;
+  font-family: monospace;
+  color: #9ca3af;
+  margin-top: 2px;
+}
+
+/* ── Token table ────────────────────────────── */
+.docs-token-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+.docs-token-table th {
+  text-align: left;
+  padding: 8px 12px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: #9ca3af;
+  border-bottom: 1px solid #e5e7eb;
+}
+.docs-token-table td {
+  padding: 10px 12px;
+  border-bottom: 1px solid #f3f4f6;
+  color: #374151;
+}
+.docs-token-table td code {
+  font-family: monospace;
+  font-size: 0.8125rem;
+  background: #f3f4f6;
+  padding: 2px 6px;
+  border-radius: 4px;
+  color: #0a0a0a;
+}
