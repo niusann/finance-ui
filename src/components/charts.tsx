@@ -119,7 +119,7 @@ export const DonutChart = memo(function DonutChart({
 
   const donutSvg = (
     <svg viewBox={`0 0 ${size} ${size}`} style={{ width: size, height: size }}>
-      <circle cx={cx} cy={cy} r={r} fill="none" stroke="#F3F4F6" strokeWidth={stroke} />
+      <circle cx={cx} cy={cy} r={r} fill="none" style={{ stroke: "var(--border-subtle)" }} strokeWidth={stroke} />
       {paths}
     </svg>
   );
@@ -214,7 +214,7 @@ export const AreaChart = memo(function AreaChart({
         </defs>
         {[0, 0.25, 0.5, 0.75, 1].map(t => {
           const y = padT + t * (height - padT - padB);
-          return <line key={t} x1={0} x2={width - padR} y1={y} y2={y} stroke="#F3F4F6" />;
+          return <line key={t} x1={0} x2={width - padR} y1={y} y2={y} style={{ stroke: "var(--border-subtle)" }} />;
         })}
         <path d={areaPath} fill={`url(#${gid})`} />
         <path d={linePath} fill="none" stroke={colors.data[500]} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
@@ -223,14 +223,14 @@ export const AreaChart = memo(function AreaChart({
           const v = minV + (1 - t) * (maxV - minV);
           const y = padT + t * (height - padT - padB);
           return (
-            <text key={t} x={width - padR + 8} y={y + 4} fontSize="11" fill={colors.text.muted}>
+            <text key={t} x={width - padR + 8} y={y + 4} fontSize="11" style={{ fill: "var(--text-muted)" }}>
               {yAxisFormat(v)}
             </text>
           );
         })}
         {/* X labels */}
         {data.map((d, i) => (
-          <text key={i} x={tX(i)} y={height - 4} fontSize="11" fill={colors.text.muted}
+          <text key={i} x={tX(i)} y={height - 4} fontSize="11" style={{ fill: "var(--text-muted)" }}
             textAnchor={i === 0 ? "start" : i === data.length - 1 ? "end" : "middle"}>
             {d.label}
           </text>
@@ -239,9 +239,9 @@ export const AreaChart = memo(function AreaChart({
         {cursorIdx !== null && (
           <>
             <line x1={tX(cursorIdx)} x2={tX(cursorIdx)} y1={padT} y2={height - padB}
-              stroke={colors.border.subtle} strokeWidth={1} strokeDasharray="3 3" />
+              style={{ stroke: "var(--border-subtle)" }} strokeWidth={1} strokeDasharray="3 3" />
             <circle cx={tX(cursorIdx)} cy={tY(data[cursorIdx].value)} r={4}
-              fill={colors.data[500]} stroke="#fff" strokeWidth={2} />
+              fill={colors.data[500]} style={{ stroke: "var(--bg-page)" }} strokeWidth={2} />
           </>
         )}
       </svg>
@@ -303,7 +303,7 @@ export const CandlestickChart = memo(function CandlestickChart({
         {/* Grid */}
         {[0, 0.25, 0.5, 0.75, 1].map(t => {
           const y = padT + t * (priceBottom - padT);
-          return <line key={t} x1={0} x2={width - padR} y1={y} y2={y} stroke="#F3F4F6" />;
+          return <line key={t} x1={0} x2={width - padR} y1={y} y2={y} style={{ stroke: "var(--border-subtle)" }} />;
         })}
         {/* Candles */}
         {data.map((c, i) => {
@@ -319,7 +319,7 @@ export const CandlestickChart = memo(function CandlestickChart({
               onMouseEnter={() => setHoveredIdx(i)}>
               {isHovered && (
                 <rect x={x - cellW / 2} y={padT} width={cellW} height={priceBottom - padT}
-                  fill={colors.border.subtle} />
+                  style={{ fill: "var(--border-subtle)" }} />
               )}
               <line x1={x} x2={x} y1={yPrice(c.high)} y2={yPrice(c.low)} stroke={color} strokeWidth={1} />
               <rect x={x - cw / 2} y={bodyTop} width={cw} height={bodyH} fill={color} />
@@ -333,7 +333,7 @@ export const CandlestickChart = memo(function CandlestickChart({
           const v = allLow + (1 - t) * (allHigh - allLow);
           const y = padT + t * (priceBottom - padT);
           return (
-            <text key={t} x={width - padR + 8} y={y + 4} fontSize="11" fill={colors.text.muted}>
+            <text key={t} x={width - padR + 8} y={y + 4} fontSize="11" style={{ fill: "var(--text-muted)" }}>
               ${v.toFixed(0)}
             </text>
           );
@@ -342,7 +342,7 @@ export const CandlestickChart = memo(function CandlestickChart({
         {data.map((c, i) => {
           if (i % Math.max(1, Math.round(data.length / 5)) !== 0) return null;
           return (
-            <text key={i} x={xPos(i)} y={height - 4} fontSize="11" fill={colors.text.muted} textAnchor="middle">
+            <text key={i} x={xPos(i)} y={height - 4} fontSize="11" style={{ fill: "var(--text-muted)" }} textAnchor="middle">
               {c.label ?? i + 1}
             </text>
           );
@@ -389,7 +389,7 @@ export const BarChart = memo(function BarChart({ data, height = 200, width = 800
         style={{ width: "100%", height, display: "block" }}
         onMouseLeave={() => setHoveredIdx(null)}
       >
-        <line x1={0} x2={width} y1={zeroY} y2={zeroY} stroke={colors.border.subtle} />
+        <line x1={0} x2={width} y1={zeroY} y2={zeroY} style={{ stroke: "var(--border-subtle)" }} />
         {data.map((d, i) => {
           const x = padL + i * cellW + cellW / 2 - bw / 2;
           const h = Math.abs(d.value) * scale;
@@ -404,7 +404,7 @@ export const BarChart = memo(function BarChart({ data, height = 200, width = 800
                 fillOpacity={dimmed ? 0.3 : (up ? 1 : 0.65)}
                 style={{ transition: "fill-opacity 150ms" }}
               />
-              <text x={x + bw / 2} y={height - 10} fontSize="11" fill={colors.text.muted} textAnchor="middle">
+              <text x={x + bw / 2} y={height - 10} fontSize="11" style={{ fill: "var(--text-muted)" }} textAnchor="middle">
                 {d.label}
               </text>
             </g>
@@ -472,7 +472,7 @@ export const WaterfallChart = memo(function WaterfallChart({ steps, height = 240
     >
       {[0.25, 0.5, 0.75].map(t => {
         const y = padT + t * (height - padT - padB);
-        return <line key={t} x1={0} x2={width} y1={y} y2={y} stroke="#F3F4F6" />;
+        return <line key={t} x1={0} x2={width} y1={y} y2={y} style={{ stroke: "var(--border-subtle)" }} />;
       })}
       {computed.map((s, i) => {
         const x = padL + i * cellW + cellW / 2 - bw / 2;
@@ -499,15 +499,15 @@ export const WaterfallChart = memo(function WaterfallChart({ steps, height = 240
                 x2={padL + i * cellW + cellW / 2 - bw / 2}
                 y1={scaleY(s.top)}
                 y2={scaleY(s.top)}
-                stroke={colors.border.subtle}
+                style={{ stroke: "var(--border-subtle)" }}
                 strokeDasharray="3 3"
               />
             )}
             <rect x={x} y={ya} width={bw} height={Math.max(1, h)} fill={fill} />
-            <text x={x + bw / 2} y={ya - 6} fontSize="11" fill={colors.text.primary} textAnchor="middle" fontWeight="600">
+            <text x={x + bw / 2} y={ya - 6} fontSize="11" style={{ fill: "var(--text-primary)" }} textAnchor="middle" fontWeight="600">
               {valueLabel}
             </text>
-            <text x={x + bw / 2} y={height - 12} fontSize="11" fill={colors.text.muted} textAnchor="middle">
+            <text x={x + bw / 2} y={height - 12} fontSize="11" style={{ fill: "var(--text-muted)" }} textAnchor="middle">
               {s.label}
             </text>
           </g>
@@ -560,7 +560,7 @@ export const ComparisonChart = memo(function ComparisonChart({ series, height = 
     <div className={cn("ui-chart-wrap", className)}>
       <div style={{ display: "flex", gap: "var(--space-4)", marginBottom: "var(--space-4)", flexWrap: "wrap" }}>
         {series.map((s, i) => (
-          <span key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: colors.text.primary }}>
+          <span key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: "var(--text-primary)" }}>
             <span style={{ width: 10, height: 10, borderRadius: "50%", background: s.color ?? SERIES_COLORS[i % SERIES_COLORS.length] }} />
             {s.label}
           </span>
@@ -572,7 +572,7 @@ export const ComparisonChart = memo(function ComparisonChart({ series, height = 
         onMouseLeave={() => setCursorIdx(null)}>
         {[0.25, 0.5, 0.75].map(t => {
           const y = 20 + t * (height - 40);
-          return <line key={t} x1={0} x2={width} y1={y} y2={y} stroke="#F3F4F6" />;
+          return <line key={t} x1={0} x2={width} y1={y} y2={y} style={{ stroke: "var(--border-subtle)" }} />;
         })}
         {series.map((s, idx) => {
           const points = s.values.map((v, i) => `${tX(i)},${tY(v)}`).join(" ");
@@ -585,11 +585,11 @@ export const ComparisonChart = memo(function ComparisonChart({ series, height = 
         {cursorIdx !== null && (
           <>
             <line x1={tX(cursorIdx)} x2={tX(cursorIdx)} y1={20} y2={height - 20}
-              stroke={colors.border.subtle} strokeWidth={1} strokeDasharray="3 3" />
+              style={{ stroke: "var(--border-subtle)" }} strokeWidth={1} strokeDasharray="3 3" />
             {series.map((s, idx) => (
               <circle key={idx} cx={tX(cursorIdx)} cy={tY(s.values[cursorIdx])} r={4}
                 fill={s.color ?? SERIES_COLORS[idx % SERIES_COLORS.length]}
-                stroke="#fff" strokeWidth={2} />
+                style={{ stroke: "var(--bg-page)" }} strokeWidth={2} />
             ))}
           </>
         )}
@@ -747,7 +747,7 @@ export const Gauge = memo(function Gauge({ value, label, size = 160, color = col
         <path
           d="M 8 50 A 42 42 0 0 1 92 50"
           fill="none"
-          stroke={colors.border.subtle}
+          style={{ stroke: "var(--border-subtle)" }}
           strokeWidth={8}
           strokeLinecap="round"
         />

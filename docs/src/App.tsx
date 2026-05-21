@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./docs.css";
 
 import Primitives from "./pages/Primitives";
@@ -44,8 +44,45 @@ function renderPage(id: string) {
   }
 }
 
+type Theme = "light" | "dark" | "system";
+
+function getSystemTheme(): "light" | "dark" {
+  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+}
+
+function applyTheme(theme: Theme) {
+  const root = document.documentElement;
+  if (theme === "system") {
+    root.removeAttribute("data-theme");
+  } else {
+    root.setAttribute("data-theme", theme);
+  }
+}
+
 export default function App() {
   const [active, setActive] = useState("primitives");
+  const [theme, setTheme] = useState<Theme>(() => {
+    const saved = localStorage.getItem("ui-theme") as Theme | null;
+    return saved ?? "system";
+  });
+
+  useEffect(() => {
+    applyTheme(theme);
+    localStorage.setItem("ui-theme", theme);
+  }, [theme]);
+
+  const resolvedTheme = theme === "system" ? getSystemTheme() : theme;
+
+  function cycleTheme() {
+    setTheme(t => {
+      if (t === "system") return "light";
+      if (t === "light") return "dark";
+      return "system";
+    });
+  }
+
+  const themeIcon = theme === "dark" ? "◑" : theme === "light" ? "○" : "◐";
+  const themeLabel = theme === "dark" ? "Dark" : theme === "light" ? "Light" : "System";
 
   return (
     <div className="docs-root">
@@ -53,6 +90,13 @@ export default function App() {
       <header className="docs-topbar">
         <span className="docs-topbar-brand">◐ finance-ui</span>
         <div className="docs-topbar-spacer" />
+        <button
+          className="docs-theme-toggle"
+          onClick={cycleTheme}
+          title={`Theme: ${themeLabel} — click to cycle`}
+        >
+          {themeIcon} {themeLabel}
+        </button>
         <a href="https://github.com/blob-get/finance-ui" target="_blank" rel="noopener noreferrer">
           View on GitHub
         </a>
