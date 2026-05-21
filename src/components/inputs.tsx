@@ -1,4 +1,4 @@
-import { InputHTMLAttributes, ReactNode, useState } from "react";
+import { InputHTMLAttributes, ReactNode, useState, useRef, useLayoutEffect } from "react";
 
 const cn = (...c: (string | false | undefined | null)[]) => c.filter(Boolean).join(" ");
 
@@ -80,11 +80,42 @@ export interface TimeRangeProps {
   className?: string;
 }
 export function TimeRange({ options, value, onChange, className }: TimeRangeProps) {
+  const btnRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [pill, setPill] = useState<{ top: number; left: number; width: number; height: number; animate: boolean } | null>(null);
+
+  useLayoutEffect(() => {
+    const idx = options.indexOf(value);
+    const btn = btnRefs.current[idx];
+    if (!btn) return;
+    setPill(prev => ({
+      top: btn.offsetTop,
+      left: btn.offsetLeft,
+      width: btn.offsetWidth,
+      height: btn.offsetHeight,
+      animate: prev !== null,
+    }));
+  }, [value, options]);
+
   return (
     <nav className={cn("ui-time-range", className)} role="tablist">
-      {options.map(opt => (
+      {pill && (
+        <span
+          className="ui-time-range-indicator"
+          style={{
+            top: pill.top,
+            left: pill.left,
+            width: pill.width,
+            height: pill.height,
+            transition: pill.animate
+              ? "top var(--motion-fast) var(--ease-out), left var(--motion-fast) var(--ease-out), width var(--motion-fast) var(--ease-out)"
+              : "none",
+          }}
+        />
+      )}
+      {options.map((opt, i) => (
         <button
           key={opt}
+          ref={el => { btnRefs.current[i] = el; }}
           className={value === opt ? "active" : undefined}
           aria-current={value === opt}
           onClick={() => onChange(opt)}
@@ -104,11 +135,42 @@ export interface TabToggleProps {
   className?: string;
 }
 export function TabToggle({ options, value, onChange, className }: TabToggleProps) {
+  const btnRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const [pill, setPill] = useState<{ top: number; left: number; width: number; height: number; animate: boolean } | null>(null);
+
+  useLayoutEffect(() => {
+    const idx = options.indexOf(value);
+    const btn = btnRefs.current[idx];
+    if (!btn) return;
+    setPill(prev => ({
+      top: btn.offsetTop,
+      left: btn.offsetLeft,
+      width: btn.offsetWidth,
+      height: btn.offsetHeight,
+      animate: prev !== null,
+    }));
+  }, [value, options]);
+
   return (
     <div className={cn("ui-tabtoggle", className)} role="tablist">
-      {options.map(opt => (
+      {pill && (
+        <span
+          className="ui-tabtoggle-indicator"
+          style={{
+            top: pill.top,
+            left: pill.left,
+            width: pill.width,
+            height: pill.height,
+            transition: pill.animate
+              ? "top var(--motion-fast) var(--ease-out), left var(--motion-fast) var(--ease-out), width var(--motion-fast) var(--ease-out)"
+              : "none",
+          }}
+        />
+      )}
+      {options.map((opt, i) => (
         <button
           key={opt}
+          ref={el => { btnRefs.current[i] = el; }}
           className={value === opt ? "active" : undefined}
           onClick={() => onChange(opt)}
         >

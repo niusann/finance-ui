@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useState, useId } from "react";
+import { ReactNode, useEffect, useState, useId, useRef, CSSProperties } from "react";
 import { colors, dataPalette } from "../tokens";
 
 const cn = (...c: (string | false | undefined | null)[]) => c.filter(Boolean).join(" ");
@@ -70,6 +70,8 @@ export function DonutChart({
   const gapDeg = 1.5;
 
   const [drawn, setDrawn] = useState(0);
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+
   useEffect(() => {
     const timers = segments.map((_, i) =>
       setTimeout(() => setDrawn(d => Math.max(d, i + 1)), 300 + i * 120)
@@ -92,15 +94,23 @@ export function DonutChart({
     const d = `M ${s.x} ${s.y} A ${r} ${r} 0 ${largeArc} 1 ${e.x} ${e.y}`;
     startDeg = endDeg;
     const color = seg.color ?? dataPalette[i % dataPalette.length];
+    const isDrawn = i < drawn;
+    const dimmed = hoveredIdx !== null && hoveredIdx !== i;
     return (
       <path
         key={i}
         d={d}
         fill="none"
         stroke={color}
-        strokeWidth={stroke}
+        strokeWidth={hoveredIdx === i ? stroke * 1.18 : stroke}
         strokeLinecap="round"
-        style={{ opacity: i < drawn ? 1 : 0, transition: "opacity 400ms ease-out" }}
+        style={{
+          opacity: isDrawn ? (dimmed ? 0.3 : 1) : 0,
+          transition: "opacity 300ms ease-out, stroke-width 150ms ease-out",
+          cursor: "pointer",
+        }}
+        onMouseEnter={() => setHoveredIdx(i)}
+        onMouseLeave={() => setHoveredIdx(null)}
       />
     );
   });
@@ -121,8 +131,12 @@ export function DonutChart({
         {segments.map((seg, i) => {
           const pct = (seg.value / total) * 100;
           const color = seg.color ?? dataPalette[i % dataPalette.length];
+          const dimmed = hoveredIdx !== null && hoveredIdx !== i;
           return (
-            <li key={i} className="ui-legend-item">
+            <li key={i} className="ui-legend-item"
+              style={{ opacity: dimmed ? 0.35 : 1, transition: "opacity 200ms" }}
+              onMouseEnter={() => setHoveredIdx(i)}
+              onMouseLeave={() => setHoveredIdx(null)}>
               <div className="ui-legend-row">
                 <span>{seg.label}</span>
                 <span>{seg.amount ?? seg.value.toLocaleString()}</span>
@@ -161,60 +175,84 @@ export function AreaChart({
   const tX = (i: number) => padL + i * xStep;
   const tY = (v: number) => padT + (1 - (v - minV) / (maxV - minV)) * (height - padT - padB);
 
+  const [cursorIdx, setCursorIdx] = useState<number | null>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const svgX = ((e.clientX - rect.left) / rect.width) * width;
+    let best = 0, bestDist = Infinity;
+    for (let i = 0; i < data.length; i++) {
+      const d = Math.abs(tX(i) - svgX);
+      if (d < bestDist) { bestDist = d; best = i; }
+    }
+    setCursorIdx(best);
+  };
+
   const pts = data.map((d, i) => `${tX(i)},${tY(d.value)}`).join(" ");
   const areaPath = `M ${tX(0)},${tY(data[0].value)} L ${pts} L ${tX(data.length - 1)},${height - padB} L ${tX(0)},${height - padB} Z`;
   const linePath = `M ${pts.split(" ").join(" L ")}`;
 
+  const tooltipPct = cursorIdx !== null ? (tX(cursorIdx) / width) * 100 : 0;
+  const flipTooltip = tooltipPct > 68;
+
   return (
-    <svg
-      viewBox={`0 0 ${width} ${height}`}
-      preserveAspectRatio="none"
-      style={{ width: "100%", height, overflow: "visible" }}
-      className={className}
-    >
-      <defs>
-        <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={colors.data[500]} stopOpacity="0.20" />
-          <stop offset="100%" stopColor={colors.data[500]} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      {[0, 0.25, 0.5, 0.75, 1].map(t => {
-        const y = padT + t * (height - padT - padB);
-        return <line key={t} x1={0} x2={width - padR} y1={y} y2={y} stroke="#F3F4F6" />;
-      })}
-      <path d={areaPath} fill={`url(#${gid})`} />
-      <path
-        d={linePath}
-        fill="none"
-        stroke={colors.data[500]}
-        strokeWidth={2}
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      {/* Y labels */}
-      {[0, 0.25, 0.5, 0.75, 1].map(t => {
-        const v = minV + (1 - t) * (maxV - minV);
-        const y = padT + t * (height - padT - padB);
-        return (
-          <text key={t} x={width - padR + 8} y={y + 4} fontSize="11" fill={colors.text.muted}>
-            {yAxisFormat(v)}
+    <div className={cn("ui-chart-wrap", className)}>
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="none"
+        style={{ width: "100%", height, overflow: "visible", display: "block", cursor: "crosshair" }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => setCursorIdx(null)}
+      >
+        <defs>
+          <linearGradient id={gid} x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0%" stopColor={colors.data[500]} stopOpacity="0.20" />
+            <stop offset="100%" stopColor={colors.data[500]} stopOpacity="0" />
+          </linearGradient>
+        </defs>
+        {[0, 0.25, 0.5, 0.75, 1].map(t => {
+          const y = padT + t * (height - padT - padB);
+          return <line key={t} x1={0} x2={width - padR} y1={y} y2={y} stroke="#F3F4F6" />;
+        })}
+        <path d={areaPath} fill={`url(#${gid})`} />
+        <path d={linePath} fill="none" stroke={colors.data[500]} strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" />
+        {/* Y labels */}
+        {[0, 0.25, 0.5, 0.75, 1].map(t => {
+          const v = minV + (1 - t) * (maxV - minV);
+          const y = padT + t * (height - padT - padB);
+          return (
+            <text key={t} x={width - padR + 8} y={y + 4} fontSize="11" fill={colors.text.muted}>
+              {yAxisFormat(v)}
+            </text>
+          );
+        })}
+        {/* X labels */}
+        {data.map((d, i) => (
+          <text key={i} x={tX(i)} y={height - 4} fontSize="11" fill={colors.text.muted}
+            textAnchor={i === 0 ? "start" : i === data.length - 1 ? "end" : "middle"}>
+            {d.label}
           </text>
-        );
-      })}
-      {/* X labels */}
-      {data.map((d, i) => (
-        <text
-          key={i}
-          x={tX(i)}
-          y={height - 4}
-          fontSize="11"
-          fill={colors.text.muted}
-          textAnchor={i === 0 ? "start" : i === data.length - 1 ? "end" : "middle"}
-        >
-          {d.label}
-        </text>
-      ))}
-    </svg>
+        ))}
+        {/* Crosshair */}
+        {cursorIdx !== null && (
+          <>
+            <line x1={tX(cursorIdx)} x2={tX(cursorIdx)} y1={padT} y2={height - padB}
+              stroke={colors.border.subtle} strokeWidth={1} strokeDasharray="3 3" />
+            <circle cx={tX(cursorIdx)} cy={tY(data[cursorIdx].value)} r={4}
+              fill={colors.data[500]} stroke="#fff" strokeWidth={2} />
+          </>
+        )}
+      </svg>
+      {cursorIdx !== null && (
+        <div className="ui-chart-tooltip" style={{
+          left: `${tooltipPct}%`,
+          transform: flipTooltip ? "translateX(calc(-100% - 8px))" : "translateX(8px)",
+        }}>
+          <div className="ui-chart-tooltip-label">{data[cursorIdx].label}</div>
+          <div className="ui-chart-tooltip-value">{yAxisFormat(data[cursorIdx].value)}</div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -247,68 +285,78 @@ export function CandlestickChart({
     padT + (1 - (v - allLow) / (allHigh - allLow)) * (priceBottom - padT);
   const yVol = (v: number) => volTop + (1 - v / maxVol) * volH;
 
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+
+  const tooltipPct = hoveredIdx !== null ? (xPos(hoveredIdx) / width) * 100 : 0;
+  const flipTooltip = tooltipPct > 65;
+
   return (
-    <svg
-      viewBox={`0 0 ${width} ${height}`}
-      preserveAspectRatio="none"
-      style={{ width: "100%", height }}
-      className={className}
-    >
-      {/* Grid */}
-      {[0, 0.25, 0.5, 0.75, 1].map(t => {
-        const y = padT + t * (priceBottom - padT);
-        return <line key={t} x1={0} x2={width - padR} y1={y} y2={y} stroke="#F3F4F6" />;
-      })}
-      {/* Candles */}
-      {data.map((c, i) => {
-        const x = xPos(i);
-        const up = c.close >= c.open;
-        const color = up ? colors.data[500] : colors.text.secondary;
-        const bodyTop = yPrice(Math.max(c.open, c.close));
-        const bodyBot = yPrice(Math.min(c.open, c.close));
-        const bodyH = Math.max(1, bodyBot - bodyTop);
-        return (
-          <g key={i}>
-            <line x1={x} x2={x} y1={yPrice(c.high)} y2={yPrice(c.low)} stroke={color} strokeWidth={1} />
-            <rect x={x - cw / 2} y={bodyTop} width={cw} height={bodyH} fill={color} />
-            <rect
-              x={x - cw / 2}
-              y={yVol(c.vol)}
-              width={cw}
-              height={volTop + volH - yVol(c.vol)}
-              fill={color}
-              fillOpacity={up ? 0.55 : 0.45}
-            />
-          </g>
-        );
-      })}
-      {/* Y labels */}
-      {[0, 0.25, 0.5, 0.75, 1].map(t => {
-        const v = allLow + (1 - t) * (allHigh - allLow);
-        const y = padT + t * (priceBottom - padT);
-        return (
-          <text key={t} x={width - padR + 8} y={y + 4} fontSize="11" fill={colors.text.muted}>
-            ${v.toFixed(0)}
-          </text>
-        );
-      })}
-      {/* X labels (sparse) */}
-      {data.map((c, i) => {
-        if (i % Math.max(1, Math.round(data.length / 5)) !== 0) return null;
-        return (
-          <text
-            key={i}
-            x={xPos(i)}
-            y={height - 4}
-            fontSize="11"
-            fill={colors.text.muted}
-            textAnchor="middle"
-          >
-            {c.label ?? i + 1}
-          </text>
-        );
-      })}
-    </svg>
+    <div className={cn("ui-chart-wrap", className)}>
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="none"
+        style={{ width: "100%", height, display: "block" }}
+        onMouseLeave={() => setHoveredIdx(null)}
+      >
+        {/* Grid */}
+        {[0, 0.25, 0.5, 0.75, 1].map(t => {
+          const y = padT + t * (priceBottom - padT);
+          return <line key={t} x1={0} x2={width - padR} y1={y} y2={y} stroke="#F3F4F6" />;
+        })}
+        {/* Candles */}
+        {data.map((c, i) => {
+          const x = xPos(i);
+          const up = c.close >= c.open;
+          const color = up ? colors.data[500] : colors.text.secondary;
+          const bodyTop = yPrice(Math.max(c.open, c.close));
+          const bodyBot = yPrice(Math.min(c.open, c.close));
+          const bodyH = Math.max(1, bodyBot - bodyTop);
+          const isHovered = hoveredIdx === i;
+          return (
+            <g key={i} style={{ cursor: "crosshair" }}
+              onMouseEnter={() => setHoveredIdx(i)}>
+              {isHovered && (
+                <rect x={x - cellW / 2} y={padT} width={cellW} height={priceBottom - padT}
+                  fill={colors.border.subtle} />
+              )}
+              <line x1={x} x2={x} y1={yPrice(c.high)} y2={yPrice(c.low)} stroke={color} strokeWidth={1} />
+              <rect x={x - cw / 2} y={bodyTop} width={cw} height={bodyH} fill={color} />
+              <rect x={x - cw / 2} y={yVol(c.vol)} width={cw} height={volTop + volH - yVol(c.vol)}
+                fill={color} fillOpacity={up ? 0.55 : 0.45} />
+            </g>
+          );
+        })}
+        {/* Y labels */}
+        {[0, 0.25, 0.5, 0.75, 1].map(t => {
+          const v = allLow + (1 - t) * (allHigh - allLow);
+          const y = padT + t * (priceBottom - padT);
+          return (
+            <text key={t} x={width - padR + 8} y={y + 4} fontSize="11" fill={colors.text.muted}>
+              ${v.toFixed(0)}
+            </text>
+          );
+        })}
+        {/* X labels (sparse) */}
+        {data.map((c, i) => {
+          if (i % Math.max(1, Math.round(data.length / 5)) !== 0) return null;
+          return (
+            <text key={i} x={xPos(i)} y={height - 4} fontSize="11" fill={colors.text.muted} textAnchor="middle">
+              {c.label ?? i + 1}
+            </text>
+          );
+        })}
+      </svg>
+      {hoveredIdx !== null && (
+        <div className="ui-chart-tooltip" style={{
+          left: `${tooltipPct}%`,
+          transform: flipTooltip ? "translateX(calc(-100% - 8px))" : "translateX(8px)",
+        }}>
+          <div className="ui-chart-tooltip-label">{data[hoveredIdx].label ?? `#${hoveredIdx + 1}`}</div>
+          <div className="ui-chart-tooltip-value">O {data[hoveredIdx].open.toFixed(2)} · H {data[hoveredIdx].high.toFixed(2)}</div>
+          <div className="ui-chart-tooltip-value">L {data[hoveredIdx].low.toFixed(2)} · C {data[hoveredIdx].close.toFixed(2)}</div>
+        </div>
+      )}
+    </div>
   );
 }
 
@@ -329,42 +377,52 @@ export function BarChart({ data, height = 200, width = 800, className }: BarChar
   const zeroY = padT + (height - padT - padB) / 2;
   const scale = (height - padT - padB) / 2 / maxAbs;
 
+  const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
+
   return (
-    <svg
-      viewBox={`0 0 ${width} ${height}`}
-      preserveAspectRatio="none"
-      style={{ width: "100%", height }}
-      className={className}
-    >
-      <line x1={0} x2={width} y1={zeroY} y2={zeroY} stroke={colors.border.subtle} />
-      {data.map((d, i) => {
-        const x = padL + i * cellW + cellW / 2 - bw / 2;
-        const h = Math.abs(d.value) * scale;
-        const up = d.value >= 0;
-        const y = up ? zeroY - h : zeroY;
+    <div className={cn("ui-chart-wrap", className)}>
+      <svg
+        viewBox={`0 0 ${width} ${height}`}
+        preserveAspectRatio="none"
+        style={{ width: "100%", height, display: "block" }}
+        onMouseLeave={() => setHoveredIdx(null)}
+      >
+        <line x1={0} x2={width} y1={zeroY} y2={zeroY} stroke={colors.border.subtle} />
+        {data.map((d, i) => {
+          const x = padL + i * cellW + cellW / 2 - bw / 2;
+          const h = Math.abs(d.value) * scale;
+          const up = d.value >= 0;
+          const y = up ? zeroY - h : zeroY;
+          const dimmed = hoveredIdx !== null && hoveredIdx !== i;
+          return (
+            <g key={i} style={{ cursor: "pointer" }}
+              onMouseEnter={() => setHoveredIdx(i)}>
+              <rect x={x} y={y} width={bw} height={h}
+                fill={up ? colors.data[500] : colors.text.secondary}
+                fillOpacity={dimmed ? 0.3 : (up ? 1 : 0.65)}
+                style={{ transition: "fill-opacity 150ms" }}
+              />
+              <text x={x + bw / 2} y={height - 10} fontSize="11" fill={colors.text.muted} textAnchor="middle">
+                {d.label}
+              </text>
+            </g>
+          );
+        })}
+      </svg>
+      {hoveredIdx !== null && (() => {
+        const d = data[hoveredIdx];
+        const x = padL + hoveredIdx * cellW + cellW / 2;
         return (
-          <g key={i}>
-            <rect
-              x={x}
-              y={y}
-              width={bw}
-              height={h}
-              fill={up ? colors.data[500] : colors.text.secondary}
-              fillOpacity={up ? 1 : 0.65}
-            />
-            <text
-              x={x + bw / 2}
-              y={height - 10}
-              fontSize="11"
-              fill={colors.text.muted}
-              textAnchor="middle"
-            >
-              {d.label}
-            </text>
-          </g>
+          <div className="ui-chart-tooltip" style={{
+            left: `${(x / width) * 100}%`,
+            transform: x / width > 0.7 ? "translateX(calc(-100% - 8px))" : "translateX(8px)",
+          }}>
+            <div className="ui-chart-tooltip-label">{d.label}</div>
+            <div className="ui-chart-tooltip-value">{d.value > 0 ? "+" : ""}{d.value.toLocaleString()}</div>
+          </div>
         );
-      })}
-    </svg>
+      })()}
+    </div>
   );
 }
 
@@ -481,11 +539,24 @@ export function ComparisonChart({ series, height = 240, width = 800, className }
   const range = max - min || 1;
   const n = series[0]?.values.length ?? 0;
   const stepX = width / (n - 1);
+  const tX = (i: number) => i * stepX;
   const tY = (v: number) => (1 - (v - min) / range) * (height - 40) + 20;
 
+  const [cursorIdx, setCursorIdx] = useState<number | null>(null);
+
+  const handleMouseMove = (e: React.MouseEvent<SVGSVGElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const svgX = ((e.clientX - rect.left) / rect.width) * width;
+    const idx = Math.max(0, Math.min(n - 1, Math.round(svgX / stepX)));
+    setCursorIdx(idx);
+  };
+
+  const tooltipPct = cursorIdx !== null ? (tX(cursorIdx) / width) * 100 : 0;
+  const flipTooltip = tooltipPct > 65;
+
   return (
-    <div className={className}>
-      <div className="ui-compare-legend" style={{ display: "flex", gap: "var(--space-4)", marginBottom: "var(--space-4)", flexWrap: "wrap" }}>
+    <div className={cn("ui-chart-wrap", className)}>
+      <div style={{ display: "flex", gap: "var(--space-4)", marginBottom: "var(--space-4)", flexWrap: "wrap" }}>
         {series.map((s, i) => (
           <span key={i} style={{ display: "flex", alignItems: "center", gap: 8, fontSize: 14, color: colors.text.primary }}>
             <span style={{ width: 10, height: 10, borderRadius: "50%", background: s.color ?? SERIES_COLORS[i % SERIES_COLORS.length] }} />
@@ -493,26 +564,53 @@ export function ComparisonChart({ series, height = 240, width = 800, className }
           </span>
         ))}
       </div>
-      <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none" style={{ width: "100%", height }}>
+      <svg viewBox={`0 0 ${width} ${height}`} preserveAspectRatio="none"
+        style={{ width: "100%", height, display: "block", cursor: "crosshair" }}
+        onMouseMove={handleMouseMove}
+        onMouseLeave={() => setCursorIdx(null)}>
         {[0.25, 0.5, 0.75].map(t => {
           const y = 20 + t * (height - 40);
           return <line key={t} x1={0} x2={width} y1={y} y2={y} stroke="#F3F4F6" />;
         })}
         {series.map((s, idx) => {
-          const points = s.values.map((v, i) => `${i * stepX},${tY(v)}`).join(" ");
+          const points = s.values.map((v, i) => `${tX(i)},${tY(v)}`).join(" ");
           return (
-            <polyline
-              key={idx}
-              points={points}
-              fill="none"
+            <polyline key={idx} points={points} fill="none"
               stroke={s.color ?? SERIES_COLORS[idx % SERIES_COLORS.length]}
-              strokeWidth={2}
-              strokeLinejoin="round"
-              strokeLinecap="round"
-            />
+              strokeWidth={2} strokeLinejoin="round" strokeLinecap="round" />
           );
         })}
+        {cursorIdx !== null && (
+          <>
+            <line x1={tX(cursorIdx)} x2={tX(cursorIdx)} y1={20} y2={height - 20}
+              stroke={colors.border.subtle} strokeWidth={1} strokeDasharray="3 3" />
+            {series.map((s, idx) => (
+              <circle key={idx} cx={tX(cursorIdx)} cy={tY(s.values[cursorIdx])} r={4}
+                fill={s.color ?? SERIES_COLORS[idx % SERIES_COLORS.length]}
+                stroke="#fff" strokeWidth={2} />
+            ))}
+          </>
+        )}
       </svg>
+      {cursorIdx !== null && (
+        <div className="ui-chart-tooltip" style={{
+          left: `${tooltipPct}%`,
+          transform: flipTooltip ? "translateX(calc(-100% - 8px))" : "translateX(8px)",
+        }}>
+          {series.map((s, idx) => {
+            const color = s.color ?? SERIES_COLORS[idx % SERIES_COLORS.length];
+            return (
+              <div key={idx} className="ui-chart-tooltip-row" style={{ marginTop: idx > 0 ? 4 : 0 }}>
+                <span className="ui-chart-tooltip-dot" style={{ background: color }} />
+                <span style={{ color: "rgba(255,255,255,0.7)", fontSize: 12 }}>{s.label}</span>
+                <span className="ui-chart-tooltip-value" style={{ marginLeft: "auto" }}>
+                  {s.values[cursorIdx].toLocaleString()}
+                </span>
+              </div>
+            );
+          })}
+        </div>
+      )}
     </div>
   );
 }
