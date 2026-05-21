@@ -242,7 +242,8 @@
   line-height: 1.5;
 }
 .docs-api-table code {
-  background: var(--accent-100);
+  background: var(--bg-soft);
+  color: var(--text-primary);
   padding: 1px 5px;
   border-radius: 3px;
   font-size: 12px;
