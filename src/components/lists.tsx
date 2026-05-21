@@ -3,6 +3,8 @@ import { Spinner } from "./primitives";
 
 const cn = (...c: (string | false | undefined | null)[]) => c.filter(Boolean).join(" ");
 
+const currencyFmt = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 });
+
 /* ─── ListItem ───────────────────────────────────────── */
 export interface ListItemProps {
   icon: ReactNode;           // initials, emoji, or <img />
@@ -202,9 +204,6 @@ export function HoldingRow({
   symbol, name, shares, avgCost, value, pl, plPercent, className,
 }: HoldingRowProps) {
   const dir = pl >= 0 ? "up" : "down";
-  const fmt = new Intl.NumberFormat("en-US", {
-    style: "currency", currency: "USD", maximumFractionDigits: 2,
-  });
   const sign = pl >= 0 ? "+" : "−";
   return (
     <div className={cn("ui-hold-row", className)}>
@@ -216,7 +215,7 @@ export function HoldingRow({
       <span className="ui-hold-cell">{avgCost}</span>
       <span className="ui-hold-cell ui-hold-cell--value">{value}</span>
       <div className="ui-hold-cell ui-hold-pl">
-        <span className="ui-watch-last">{sign}{fmt.format(Math.abs(pl))}</span>
+        <span className="ui-watch-last">{sign}{currencyFmt.format(Math.abs(pl))}</span>
         <span className={cn("ui-trend", `ui-trend--${dir}`)}>
           {dir === "up" ? "↗" : "↘"} {Math.abs(plPercent).toFixed(1)}%
         </span>

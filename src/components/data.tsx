@@ -2,6 +2,8 @@ import { HTMLAttributes, ReactNode } from "react";
 
 const cn = (...c: (string | false | undefined | null)[]) => c.filter(Boolean).join(" ");
 
+const currencyFmt = new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 });
+
 /* ─── TrendBadge ─────────────────────────────────────── */
 export interface TrendBadgeProps {
   delta: number;          // signed value: + up, − down, 0 flat
@@ -18,7 +20,7 @@ export function TrendBadge({ delta, format = "percent", showArrow = true, classN
     (format === "percent"
       ? `${Math.abs(delta).toFixed(1)}%`
       : format === "currency"
-      ? new Intl.NumberFormat("en-US", { style: "currency", currency: "USD", maximumFractionDigits: 2 }).format(Math.abs(delta))
+      ? currencyFmt.format(Math.abs(delta))
       : Math.abs(delta).toString());
   return (
     <span className={cn("ui-trend", `ui-trend--${dir}`, className)}>
@@ -35,9 +37,7 @@ export interface PLBadgeProps {
 }
 export function PLBadge({ amount, percent, className }: PLBadgeProps) {
   const dir = amount >= 0 ? "up" : "down";
-  const fmtAmount = new Intl.NumberFormat("en-US", {
-    style: "currency", currency: "USD", maximumFractionDigits: 2,
-  }).format(Math.abs(amount));
+  const fmtAmount = currencyFmt.format(Math.abs(amount));
   const sign = amount >= 0 ? "+" : "−";
   return (
     <div className={cn("ui-pl-badge", `ui-pl-badge--${dir}`, className)}>

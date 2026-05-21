@@ -1,7 +1,9 @@
-import { ReactNode, useEffect, useState, useId, useRef, CSSProperties } from "react";
+import { ReactNode, useEffect, useState, useId, useRef, memo } from "react";
 import { colors, dataPalette } from "../tokens";
 
 const cn = (...c: (string | false | undefined | null)[]) => c.filter(Boolean).join(" ");
+
+const defaultYAxisFormat = (v: number) => `$${Math.round(v / 1000)}K`;
 
 /* ═══════════════════════════════════════════════════════
    Sparkline
@@ -13,7 +15,7 @@ export interface SparklineProps {
   direction?: "up" | "down" | "flat" | "auto";
   className?: string;
 }
-export function Sparkline({
+export const Sparkline = memo(function Sparkline({
   values, width = 120, height = 32, direction = "auto", className,
 }: SparklineProps) {
   if (values.length < 2) return null;
@@ -42,7 +44,7 @@ export function Sparkline({
       <polyline className={cn("ui-sparkline-line", `ui-sparkline-line--${dir}`)} points={points} />
     </svg>
   );
-}
+});
 
 /* ═══════════════════════════════════════════════════════
    DonutChart + Legend
@@ -60,7 +62,7 @@ export interface DonutChartProps {
   showLegend?: boolean;
   className?: string;
 }
-export function DonutChart({
+export const DonutChart = memo(function DonutChart({
   segments, size = 200, stroke = 24, showLegend = true, className,
 }: DonutChartProps) {
   const total = segments.reduce((s, x) => s + x.value, 0) || 1;
@@ -150,7 +152,7 @@ export function DonutChart({
       </ul>
     </div>
   );
-}
+});
 
 /* ═══════════════════════════════════════════════════════
    AreaChart
@@ -163,8 +165,8 @@ export interface AreaChartProps {
   yAxisFormat?: (v: number) => string;
   className?: string;
 }
-export function AreaChart({
-  data, height = 240, width = 800, yAxisFormat = v => `$${Math.round(v / 1000)}K`, className,
+export const AreaChart = memo(function AreaChart({
+  data, height = 240, width = 800, yAxisFormat = defaultYAxisFormat, className,
 }: AreaChartProps) {
   const gid = useId();
   const padL = 0, padR = 60, padT = 10, padB = 30;
@@ -254,7 +256,7 @@ export function AreaChart({
       )}
     </div>
   );
-}
+});
 
 /* ═══════════════════════════════════════════════════════
    CandlestickChart (with volume)
@@ -266,7 +268,7 @@ export interface CandlestickChartProps {
   width?: number;
   className?: string;
 }
-export function CandlestickChart({
+export const CandlestickChart = memo(function CandlestickChart({
   data, height = 360, width = 800, className,
 }: CandlestickChartProps) {
   const padL = 0, padR = 60, padT = 20, padB = 30;
@@ -358,7 +360,7 @@ export function CandlestickChart({
       )}
     </div>
   );
-}
+});
 
 /* ═══════════════════════════════════════════════════════
    BarChart (vertical, signed)
@@ -369,7 +371,7 @@ export interface BarChartProps {
   width?: number;
   className?: string;
 }
-export function BarChart({ data, height = 200, width = 800, className }: BarChartProps) {
+export const BarChart = memo(function BarChart({ data, height = 200, width = 800, className }: BarChartProps) {
   const padL = 20, padR = 20, padT = 10, padB = 40;
   const cellW = (width - padL - padR) / data.length;
   const bw = cellW * 0.6;
@@ -424,7 +426,7 @@ export function BarChart({ data, height = 200, width = 800, className }: BarChar
       })()}
     </div>
   );
-}
+});
 
 /* ═══════════════════════════════════════════════════════
    WaterfallChart
@@ -440,7 +442,7 @@ export interface WaterfallChartProps {
   width?: number;
   className?: string;
 }
-export function WaterfallChart({ steps, height = 240, width = 800, className }: WaterfallChartProps) {
+export const WaterfallChart = memo(function WaterfallChart({ steps, height = 240, width = 800, className }: WaterfallChartProps) {
   const padL = 20, padR = 20, padT = 30, padB = 40;
   const cellW = (width - padL - padR) / steps.length;
   const bw = cellW * 0.55;
@@ -513,7 +515,7 @@ export function WaterfallChart({ steps, height = 240, width = 800, className }: 
       })}
     </svg>
   );
-}
+});
 
 /* ═══════════════════════════════════════════════════════
    ComparisonChart (multi-line, normalized)
@@ -532,7 +534,7 @@ export interface ComparisonChartProps {
 const SERIES_COLORS = [
   colors.data[900], colors.data[500], colors.accent[500], colors.text.secondary,
 ];
-export function ComparisonChart({ series, height = 240, width = 800, className }: ComparisonChartProps) {
+export const ComparisonChart = memo(function ComparisonChart({ series, height = 240, width = 800, className }: ComparisonChartProps) {
   const allVals = series.flatMap(s => s.values);
   const min = Math.min(...allVals);
   const max = Math.max(...allVals);
@@ -613,7 +615,7 @@ export function ComparisonChart({ series, height = 240, width = 800, className }
       )}
     </div>
   );
-}
+});
 
 /* ═══════════════════════════════════════════════════════
    StackedBar (horizontal)
@@ -623,7 +625,7 @@ export interface StackedBarProps {
   segments: StackedBarSegment[];
   className?: string;
 }
-export function StackedBar({ segments, className }: StackedBarProps) {
+export const StackedBar = memo(function StackedBar({ segments, className }: StackedBarProps) {
   return (
     <div className={cn("ui-stack-bar", className)}>
       {segments.map((s, i) => (
@@ -631,7 +633,7 @@ export function StackedBar({ segments, className }: StackedBarProps) {
       ))}
     </div>
   );
-}
+});
 
 /* ═══════════════════════════════════════════════════════
    Treemap (CSS-grid based; pass placement explicitly)
@@ -649,7 +651,7 @@ export interface TreemapProps {
   rows?: number;
   className?: string;
 }
-export function Treemap({ cells, columns = 8, rows = 5, className }: TreemapProps) {
+export const Treemap = memo(function Treemap({ cells, columns = 8, rows = 5, className }: TreemapProps) {
   return (
     <div
       className={cn("ui-treemap", className)}
@@ -670,7 +672,7 @@ export function Treemap({ cells, columns = 8, rows = 5, className }: TreemapProp
       ))}
     </div>
   );
-}
+});
 
 /* ═══════════════════════════════════════════════════════
    SectorHeatmap
@@ -692,7 +694,7 @@ function sectorClass(change: number): string {
   if (change > -2)  return "ui-sector-cell--down2";
   return "ui-sector-cell--down3";
 }
-export function SectorHeatmap({ cells, className }: SectorHeatmapProps) {
+export const SectorHeatmap = memo(function SectorHeatmap({ cells, className }: SectorHeatmapProps) {
   return (
     <div className={cn("ui-sector-heat", className)}>
       {cells.map((c, i) => (
@@ -703,7 +705,7 @@ export function SectorHeatmap({ cells, className }: SectorHeatmapProps) {
       ))}
     </div>
   );
-}
+});
 
 /* ═══════════════════════════════════════════════════════
    CalendarHeatmap (rows×cols, intensity 0-5)
@@ -713,7 +715,7 @@ export interface CalendarHeatmapProps {
   columns: number;
   className?: string;
 }
-export function CalendarHeatmap({ intensities, columns, className }: CalendarHeatmapProps) {
+export const CalendarHeatmap = memo(function CalendarHeatmap({ intensities, columns, className }: CalendarHeatmapProps) {
   return (
     <div
       className={cn("ui-heat", className)}
@@ -724,7 +726,7 @@ export function CalendarHeatmap({ intensities, columns, className }: CalendarHea
       ))}
     </div>
   );
-}
+});
 
 /* ═══════════════════════════════════════════════════════
    Gauge (half-circle)
@@ -736,7 +738,7 @@ export interface GaugeProps {
   color?: string;
   className?: string;
 }
-export function Gauge({ value, label, size = 160, color = colors.data[700], className }: GaugeProps) {
+export const Gauge = memo(function Gauge({ value, label, size = 160, color = colors.data[700], className }: GaugeProps) {
   const arc = 132;  // approximate arc length of M8,50 A42,42 0 0 1 92,50
   const offset = arc * (1 - Math.max(0, Math.min(100, value)) / 100);
   return (
@@ -766,4 +768,4 @@ export function Gauge({ value, label, size = 160, color = colors.data[700], clas
       </div>
     </div>
   );
-}
+});
