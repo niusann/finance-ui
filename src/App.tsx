@@ -140,7 +140,7 @@ function Grid({ cols = 2, children, gap = 16 }: { cols?: number; children: React
 }
 
 // ─── Main App ─────────────────────────────────────────────────
-export default function App() {
+export default function App({ onDocsClick }: { onDocsClick?: () => void } = {}) {
   const [range, setRange] = useState("YTD");
   const [tab, setTab] = useState("Monthly");
   const [side, setSide] = useState<"buy" | "sell">("buy");
@@ -168,6 +168,7 @@ export default function App() {
           { label: "Lists", href: "#lists" },
           { label: "Invest", href: "#invest" },
           { label: "Chat", href: "#chat" },
+          ...(onDocsClick ? [{ label: "Docs", onClick: onDocsClick }] : []),
         ]}
         end={
           <>

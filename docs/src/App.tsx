@@ -1,6 +1,8 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import "./docs.css";
+import { AppBar, IconButton, Avatar } from "@finance-ui/components";
 
+import Preview from "./pages/Preview";
 import Primitives from "./pages/Primitives";
 import Inputs from "./pages/Inputs";
 import DataDisplay from "./pages/DataDisplay";
@@ -44,27 +46,35 @@ function renderPage(id: string) {
   }
 }
 
-type Theme = "light" | "dark" | "system";
-
-function getSystemTheme(): "light" | "dark" {
-  return window.matchMedia("(prefers-color-scheme: dark)").matches ? "dark" : "light";
+// Parse the current URL path into a page id
+function pathToPage(path: string): string {
+  if (path === "/" || path === "") return "home";
+  const match = path.match(/^\/docs\/?(.*)$/);
+  if (match) {
+    const slug = match[1] || "primitives";
+    return CATEGORIES.some(c => c.id === slug) ? slug : "primitives";
+  }
+  return "home";
 }
+
+function pageToPath(id: string): string {
+  if (id === "home") return "/";
+  return `/docs/${id}`;
+}
+
+type Theme = "light" | "dark" | "system";
 
 function applyTheme(theme: Theme) {
   const root = document.documentElement;
-  if (theme === "system") {
-    root.removeAttribute("data-theme");
-  } else {
-    root.setAttribute("data-theme", theme);
-  }
+  if (theme === "system") root.removeAttribute("data-theme");
+  else root.setAttribute("data-theme", theme);
 }
 
 export default function App() {
-  const [active, setActive] = useState("primitives");
+  const [active, setActive] = useState(() => pathToPage(window.location.pathname));
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [theme, setTheme] = useState<Theme>(() => {
-    const saved = localStorage.getItem("ui-theme") as Theme | null;
-    return saved ?? "system";
+    return (localStorage.getItem("ui-theme") as Theme) ?? "system";
   });
 
   useEffect(() => {
@@ -72,57 +82,55 @@ export default function App() {
     localStorage.setItem("ui-theme", theme);
   }, [theme]);
 
-  const resolvedTheme = theme === "system" ? getSystemTheme() : theme;
+  // Sync browser back/forward
+  useEffect(() => {
+    function onPop() {
+      setActive(pathToPage(window.location.pathname));
+      setSidebarOpen(false);
+    }
+    window.addEventListener("popstate", onPop);
+    return () => window.removeEventListener("popstate", onPop);
+  }, []);
 
-  function cycleTheme() {
-    setTheme(t => {
-      if (t === "system") return "light";
-      if (t === "light") return "dark";
-      return "system";
-    });
-  }
-
-  const themeIcon = theme === "dark" ? "◑" : theme === "light" ? "○" : "◐";
-  const themeLabel = theme === "dark" ? "Dark" : theme === "light" ? "Light" : "System";
-
-  function navigate(id: string) {
+  const navigate = useCallback((id: string) => {
+    const path = pageToPath(id);
+    window.history.pushState({ page: id }, "", path);
     setActive(id);
     setSidebarOpen(false);
+  }, []);
+
+  if (active === "home") {
+    return <Preview onDocsClick={() => navigate("primitives")} />;
   }
 
   return (
     <div className="docs-root">
-      {/* ── Top bar ── */}
-      <header className="docs-topbar">
-        <button
-          className="docs-hamburger"
-          onClick={() => setSidebarOpen(o => !o)}
-          aria-label="Toggle navigation"
-        >
-          <span /><span /><span />
-        </button>
-        <span className="docs-topbar-brand">◐ finance-ui</span>
-        <div className="docs-topbar-spacer" />
-        <button
-          className="docs-theme-toggle"
-          onClick={cycleTheme}
-          title={`Theme: ${themeLabel} — click to cycle`}
-        >
-          {themeIcon} {themeLabel}
-        </button>
-        <a className="docs-github-link" href="https://github.com/blob-get/finance-ui" target="_blank" rel="noopener noreferrer">
-          View on GitHub
-        </a>
-      </header>
+      <AppBar
+        className="docs-appbar"
+        brand="◐ finance-ui"
+        items={[
+          { label: "Overview",  onClick: () => navigate("home") },
+          { label: "Charts",    onClick: () => navigate("home") },
+          { label: "Lists",     onClick: () => navigate("home") },
+          { label: "Invest",    onClick: () => navigate("home") },
+          { label: "Chat",      onClick: () => navigate("home") },
+          { label: "Docs",      active: true },
+        ]}
+        end={
+          <>
+            <IconButton aria-label="Search">🔍</IconButton>
+            <IconButton aria-label="Notifications">🔔</IconButton>
+            <Avatar initials="YL" />
+          </>
+        }
+      />
 
-      {/* ── Sidebar overlay (mobile) ── */}
       {sidebarOpen && (
         <div className="docs-sidebar-overlay" onClick={() => setSidebarOpen(false)} />
       )}
 
-      {/* ── Sidebar ── */}
-      <nav className={`docs-sidebar${sidebarOpen ? " open" : ""}`}>
-        <div className="docs-sidebar-section">Components</div>
+      <nav className={`docs-sidebar docs-sidebar--under-appbar${sidebarOpen ? " open" : ""}`}>
+        <div className="docs-sidebar-section">Components API</div>
         {CATEGORIES.map(c => (
           <a
             key={c.id}
@@ -134,8 +142,7 @@ export default function App() {
         ))}
       </nav>
 
-      {/* ── Main content ── */}
-      <main className="docs-content">
+      <main className="docs-content docs-content--under-appbar">
         {renderPage(active)}
       </main>
     </div>

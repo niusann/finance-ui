@@ -80,6 +80,22 @@
   color: var(--bg-page);
 }
 
+/* ── AppBar override: fixed when inside docs ─── */
+.docs-appbar {
+  position: fixed !important;
+  top: 0; left: 0; right: 0;
+  z-index: 100;
+}
+
+/* ── Sidebar / content adjustments when AppBar is showing ── */
+.docs-sidebar--under-appbar {
+  top: 56px;
+  padding-top: 16px;
+}
+.docs-content--under-appbar {
+  padding-top: 76px; /* 56px appbar + 20px breathing room */
+}
+
 /* ── Content ─────────────────────────────────── */
 .docs-content {
   flex: 1;
@@ -88,6 +104,7 @@
   min-width: 0;
   max-width: 960px;
 }
+
 
 /* ── Page heading ────────────────────────────── */
 .docs-page-title {

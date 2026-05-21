@@ -4,7 +4,8 @@ import { resolve } from "path";
 
 export default defineConfig({
   plugins: [react()],
-  base: "./",
+  base: "/",
+  appType: "spa",
   resolve: {
     alias: {
       "@finance-ui/components": resolve(__dirname, "../src/lib.ts"),
