@@ -147,6 +147,11 @@ export default function App() {
   const [modalOpen, setModalOpen] = useState(false);
   const [sheetOpen, setSheetOpen] = useState(false);
   const [composerValue, setComposerValue] = useState("");
+  const [dateRange, setDateRange] = useState<{ start: Date | null; end: Date | null }>({
+    start: new Date(2026, 0, 1),
+    end: new Date(2026, 4, 20),
+  });
+  const [priceRange, setPriceRange] = useState<[number, number]>([140, 400]);
 
   const sparklineUp = useMemo(() => [10, 12, 11, 14, 16, 15, 18, 20, 19, 22, 24], []);
   const sparklineDown = useMemo(() => [24, 22, 20, 21, 18, 17, 15, 14, 12, 11, 10], []);
@@ -312,7 +317,7 @@ export default function App() {
               <Chip onRemove={() => {}}>Last 30 days</Chip>
               <Chip>Recurring</Chip>
             </div>
-            <DateRange label="Jan 1 – May 20, 2026" />
+            <DateRange value={dateRange} onChange={setDateRange} />
           </div>
         </Section>
 
@@ -749,9 +754,9 @@ export default function App() {
               <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
                 <Card>
                   <CardHeader title="Filter by price" meta="Drag handles to set range" />
-                  <RangeSlider min={50} max={500} value={[140, 400]} />
+                  <RangeSlider min={50} max={500} value={priceRange} onChange={setPriceRange} />
                   <p style={{ fontSize: 14, color: colors.text.secondary, marginTop: 12 }}>
-                    Showing stocks priced <strong style={{ color: colors.text.primary }}>$140 – $400</strong>
+                    Showing stocks priced <strong style={{ color: colors.text.primary }}>${priceRange[0]} – ${priceRange[1]}</strong>
                   </p>
                 </Card>
                 <Card>
