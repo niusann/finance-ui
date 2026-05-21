@@ -103,17 +103,22 @@ export function Divider({ className, ...rest }: HTMLAttributes<HTMLHRElement>) {
 
 /* ─── Avatar ──────────────────────────────────────────── */
 export interface AvatarProps extends ButtonHTMLAttributes<HTMLButtonElement> {
-  initials: string;
+  initials?: string;
+  src?: string;
   color?: string;
 }
-export function Avatar({ initials, color, className, style, ...rest }: AvatarProps) {
+export function Avatar({ initials, src, color, className, style, ...rest }: AvatarProps) {
   return (
     <button
       className={cn("ui-avatar", className)}
-      style={{ background: color, ...style }}
+      style={src ? style : { background: color, ...style }}
       {...rest}
     >
-      {initials}
+      {src ? (
+        <img src={src} alt={initials ?? "avatar"} style={{ width: "100%", height: "100%", objectFit: "cover" }} />
+      ) : (
+        initials
+      )}
     </button>
   );
 }

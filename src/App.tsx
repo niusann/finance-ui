@@ -174,7 +174,7 @@ export default function App({ onDocsClick }: { onDocsClick?: () => void } = {}) 
           <>
             <IconButton aria-label="Search">🔍</IconButton>
             <IconButton aria-label="Notifications">🔔</IconButton>
-            <Avatar initials="YL" />
+            <Avatar src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 40 40'%3E%3Ccircle cx='20' cy='20' r='20' fill='%23cbd5e1'/%3E%3Ccircle cx='20' cy='16' r='7' fill='%2394a3b8'/%3E%3Cellipse cx='20' cy='36' rx='12' ry='8' fill='%2394a3b8'/%3E%3C/svg%3E" initials="User" />
           </>
         }
       />
